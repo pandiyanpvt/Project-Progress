@@ -1,50 +1,47 @@
 # Project Progress Tracker
 
-A comprehensive project progress tracking system for software development companies. This system allows you to create projects, manage tasks, and provide real-time progress updates to clients.
+A lightweight project progress tracker with an admin dashboard and a public client view. Create projects, add tasks, and share a client-friendly progress page that updates in real time.
 
 ## Features
 
 ### Admin Panel
-- **Authentication**: Secure login/registration system
+- **Authentication**: Email + password sign-in (sign-up disabled)
 - **Project Management**: Create, edit, and delete projects
 - **Task Management**: Add, update, and track tasks for each project
-- **Real-time Updates**: Live progress tracking with WebSocket integration
-- **Client URLs**: Generate unique URLs for each project
+- **Live Progress**: Real-time task updates and progress calculation
+- **Shareable Client URL**: Unique public link per project
 
 ### Client View
-- **Public Progress Page**: Clients can view project progress without login
-- **Real-time Updates**: Live progress updates as tasks are completed
-- **Task Status**: See pending, in-progress, and completed tasks
-- **Deadline Tracking**: Visual countdown to project deadline
-- **Project Links**: Direct access to live project URLs
+- **Public Progress Page**: No login required
+- **Progress Bar**: Overall progress with color-coded task cards
+- **Deadline**: Clear estimated deadline and remaining days
+- **Real-time**: Updates instantly as tasks change
 
 ## Technology Stack
 
-### Backend
-- **Node.js** with Express.js
-- **MongoDB** with Mongoose ODM
-- **Socket.io** for real-time communication
-- **JWT** for authentication
-- **bcryptjs** for password hashing
+This project uses Firebase (Firestore + Auth) on the frontend-only stack for rapid setup and hosting simplicity.
+
+### Backend (provided by Firebase)
+- **Firestore** for data storage (projects, tasks)
+- **Firebase Auth** for authentication
+- **onSnapshot** listeners for real-time updates
 
 ### Frontend
 - **React 18** with Vite
 - **React Router** for navigation
-- **Socket.io Client** for real-time updates
 - **Lucide React** for icons
 - **React Hot Toast** for notifications
 
 ### Deployment
-- **Netlify** for hosting
-- **Netlify Functions** for serverless backend
-- **MongoDB Atlas** for cloud database
+- **Netlify** or **Vercel** for hosting
+- **Firebase** (Firestore/Auth) for backend services
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js 18+
-- MongoDB (local or Atlas)
-- Netlify account
+- Firebase project (Firestore + Auth enabled)
+- Netlify/Vercel account (optional)
 
 ### Local Development
 
@@ -56,52 +53,41 @@ A comprehensive project progress tracking system for software development compan
 
 2. **Install dependencies**
    ```bash
-   # Install root dependencies
-   npm install
-   
-   # Install backend dependencies
-   cd backend
-   npm install
-   
-   # Install frontend dependencies
-   cd ../frontend
+   cd frontend
    npm install
    ```
 
 3. **Set up environment variables**
-   
-   Create `backend/.env` file:
+
+   Create `frontend/.env` from `frontend/env.example` and fill your Firebase config keys:
    ```env
-   PORT=5000
-   MONGODB_URI=mongodb://localhost:27017/project-progress
-   JWT_SECRET=your-super-secret-jwt-key-here
-   FRONTEND_URL=http://localhost:5173
+   VITE_FIREBASE_API_KEY=...
+   VITE_FIREBASE_AUTH_DOMAIN=...
+   VITE_FIREBASE_PROJECT_ID=...
+   VITE_FIREBASE_STORAGE_BUCKET=...
+   VITE_FIREBASE_MESSAGING_SENDER_ID=...
+   VITE_FIREBASE_APP_ID=...
    ```
 
-4. **Start the development servers**
+4. **Start the development server**
    ```bash
-   # From root directory
+   cd frontend
    npm run dev
    ```
+   App runs at Vite's default port (5173).
 
-   This will start both backend (port 5000) and frontend (port 5173) servers.
-
-### Netlify Deployment
+### Deployment (Netlify/Vercel)
 
 1. **Prepare for deployment**
    ```bash
    # Build the frontend
-   cd frontend
-   npm run build
+   cd frontend && npm run build
    ```
 
-2. **Deploy to Netlify**
-   - Connect your GitHub repository to Netlify
-   - Set build command: `npm run build`
-   - Set publish directory: `frontend/dist`
-   - Add environment variables in Netlify dashboard:
-     - `MONGODB_URI`: Your MongoDB Atlas connection string
-     - `JWT_SECRET`: Your JWT secret key
+2. **Deploy**
+- Connect your repository and set build command: `npm run build`
+- Publish directory: `frontend/dist`
+- Add the Firebase env vars in your hosting provider dashboard
 
 3. **Configure redirects**
    The `netlify.toml` file is already configured with the necessary redirects.
@@ -130,24 +116,34 @@ A comprehensive project progress tracking system for software development compan
    - Project deadline countdown
    - Direct links to live project
 
-## API Endpoints
+## Data Model (Firestore)
 
-### Authentication
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register` - User registration
+### Project
+```
+projects/{projectId} {
+  name: string,
+  clientName: string,
+  clientEmail: string,
+  projectUrl: string,
+  estimatedDeadline: Timestamp,
+  status: string,
+  publicId: string,
+  createdBy: string (user id)
+}
+```
 
-### Projects
-- `GET /api/projects` - Get all projects (admin)
-- `GET /api/projects/public/:publicId` - Get project by public ID (client)
-- `POST /api/projects` - Create new project
-- `PUT /api/projects/:id` - Update project
-- `DELETE /api/projects/:id` - Delete project
-
-### Tasks
-- `GET /api/tasks/project/:projectId` - Get tasks for project
-- `POST /api/tasks` - Create new task
-- `PUT /api/tasks/:id` - Update task
-- `DELETE /api/tasks/:id` - Delete task
+### Task
+```
+tasks/{taskId} {
+  projectId: string,
+  title: string,
+  description: string,
+  status: 'pending' | 'in-progress' | 'completed' | 'blocked',
+  priority: 'low' | 'medium' | 'high' | 'urgent',
+  dueDate: Timestamp,
+  createdBy: string
+}
+```
 
 ## Real-time Features
 
@@ -240,10 +236,10 @@ The system uses WebSocket connections to provide real-time updates:
 ### Support
 
 For issues and questions:
-1. Check the console for error messages
-2. Verify environment variables
-3. Ensure all dependencies are installed
-4. Check MongoDB connection
+1. Check the browser console for error messages
+2. Verify your Firebase project configuration
+3. Ensure env variables are set correctly
+4. Confirm Firestore rules allow required reads/writes
 
 ## License
 
