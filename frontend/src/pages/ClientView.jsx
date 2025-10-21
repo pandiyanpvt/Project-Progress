@@ -170,7 +170,7 @@ const ClientView = () => {
                 <div className="flex items-center gap-4 mt-8">
                   <Calendar className="h-5 w-5 text-gray-400" />
                   <div>
-                    <p className="text-sm text-gray-400">Estimated Deadline</p>
+                    <p className="text-sm text-gray-400">Estimated Date</p>
                     <p className="font-medium text-white">
                       {(project.estimatedDeadline.toDate ? project.estimatedDeadline.toDate() : new Date(project.estimatedDeadline)).toLocaleDateString()}
                     </p>
