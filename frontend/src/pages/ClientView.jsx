@@ -172,7 +172,7 @@ const ClientView = () => {
                   <div>
                     <p className="text-sm text-gray-400">Estimated Date</p>
                     <p className="font-medium text-white">
-                      {(project.estimatedDeadline.toDate ? project.estimatedDeadline.toDate() : new Date(project.estimatedDeadline)).toLocaleDateString()}
+                      {(project.estimatedDeadline.toDate ? project.estimatedDeadline.toDate() : new Date(project.estimatedDeadline)).toLocaleDateString('en-GB')}
                     </p>
                     {daysUntilDeadline !== null && (
                       <p className={`text-sm ${
@@ -236,7 +236,7 @@ const ClientView = () => {
                                 <div className="flex items-center gap-2">
                                   <Calendar className="h-4 w-4" />
                                   <span>
-                                    Due {(task.dueDate.toDate ? task.dueDate.toDate() : new Date(task.dueDate)).toLocaleDateString()}
+                                    Due {(task.dueDate.toDate ? task.dueDate.toDate() : new Date(task.dueDate)).toLocaleDateString('en-GB')}
                                   </span>
                                 </div>
                               )}

@@ -119,11 +119,14 @@ export const createTask = async (taskData) => {
 
 export const getTasks = async (projectId) => {
   try {
-    const q = query(tasksCollection, where('projectId', '==', projectId));
+    const q = query(
+      tasksCollection,
+      where('projectId', '==', projectId),
+      orderBy('createdAt', 'asc')
+    );
     const querySnapshot = await getDocs(q);
     const tasks = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    // Sort by createdAt in JavaScript instead of Firestore
-    return tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    return tasks;
   } catch (error) {
     console.error('Error getting tasks:', error);
     throw error;
@@ -166,11 +169,13 @@ export const subscribeToProjects = (userId, callback) => {
 };
 
 export const subscribeToTasks = (projectId, callback) => {
-  const q = query(tasksCollection, where('projectId', '==', projectId));
+  const q = query(
+    tasksCollection,
+    where('projectId', '==', projectId),
+    orderBy('createdAt', 'asc')
+  );
   return onSnapshot(q, (snapshot) => {
     const tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    // Sort by createdAt in JavaScript instead of Firestore
-    const sortedTasks = tasks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    callback(sortedTasks);
+    callback(tasks);
   });
 };
