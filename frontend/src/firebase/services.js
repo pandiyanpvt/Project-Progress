@@ -8,7 +8,6 @@ import {
   deleteDoc, 
   query, 
   where, 
-  orderBy,
   onSnapshot 
 } from 'firebase/firestore';
 import { db } from './config';
@@ -117,16 +116,19 @@ export const createTask = async (taskData) => {
   }
 };
 
+const getMillis = (value) => {
+  if (!value) return 0;
+  if (typeof value.toMillis === 'function') return value.toMillis();
+  if (typeof value.toDate === 'function') return value.toDate().getTime();
+  return new Date(value).getTime();
+};
+
 export const getTasks = async (projectId) => {
   try {
-    const q = query(
-      tasksCollection,
-      where('projectId', '==', projectId),
-      orderBy('createdAt', 'asc')
-    );
+    const q = query(tasksCollection, where('projectId', '==', projectId));
     const querySnapshot = await getDocs(q);
     const tasks = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    return tasks;
+    return tasks.sort((a, b) => getMillis(a.createdAt) - getMillis(b.createdAt));
   } catch (error) {
     console.error('Error getting tasks:', error);
     throw error;
@@ -169,13 +171,11 @@ export const subscribeToProjects = (userId, callback) => {
 };
 
 export const subscribeToTasks = (projectId, callback) => {
-  const q = query(
-    tasksCollection,
-    where('projectId', '==', projectId),
-    orderBy('createdAt', 'asc')
-  );
+  const q = query(tasksCollection, where('projectId', '==', projectId));
   return onSnapshot(q, (snapshot) => {
-    const tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const tasks = snapshot.docs
+      .map(doc => ({ id: doc.id, ...doc.data() }))
+      .sort((a, b) => getMillis(a.createdAt) - getMillis(b.createdAt));
     callback(tasks);
   });
 };
